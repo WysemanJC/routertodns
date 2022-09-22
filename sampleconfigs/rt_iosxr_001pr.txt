@@ -1,0 +1,262 @@
+!! IOS XR Configuration 7.1.3
+!! Last configuration change at Tue May 17 06:44:06 2022 by someuser
+!
+hostname RTIOSXREUR001PR
+clock timezone UTC UTC
+
+logging ipv4 dscp cs2
+logging trap informational
+logging console disable
+logging monitor debugging
+logging buffered 2097152
+logging buffered informational
+logging 10.37.84.2 vrf OOB-MGT severity info
+logging 10.133.84.2 vrf OOB-MGT severity info
+logging suppress duplicates
+service timestamps log datetime localtime msec show-timezone year
+service timestamps debug datetime localtime msec show-timezone year
+
+hw-module bfd-hw-offload enable location 0/0/CPU0
+interface Bundle-Ether1
+ description *Connected to CARRIER BE1
+ bfd mode ietf
+ bfd address-family ipv4 timers start 60
+ bfd address-family ipv4 timers nbr-unconfig 3600
+ bfd address-family ipv4 multiplier 3
+ bfd address-family ipv4 destination 10.77.1.2
+ bfd address-family ipv4 fast-detect
+ bfd address-family ipv4 minimum-interval 15
+ mtu 9216
+ service-policy output CORE-QOS-EGRESS
+ ipv4 address 10.77.1.1 255.255.255.252
+ load-interval 30
+ dampening
+ logging events link-status
+!
+interface Bundle-Ether22
+ description Connected to LITTLEROUTER BE22
+ bfd mode ietf
+ bfd address-family ipv4 timers start 60
+ bfd address-family ipv4 timers nbr-unconfig 3600
+ bfd address-family ipv4 multiplier 3
+ bfd address-family ipv4 destination 10.77.1.6
+ bfd address-family ipv4 fast-detect
+ bfd address-family ipv4 minimum-interval 15
+ mtu 9216
+ service-policy output CORE-QOS-EGRESS
+ ipv4 address 10.77.1.5 255.255.255.252
+ load-interval 30
+ dampening
+ logging events link-status
+!
+interface Bundle-Ether23
+ description *Connected to BIGROUTER BE23
+ bfd mode ietf
+ bfd address-family ipv4 timers start 60
+ bfd address-family ipv4 timers nbr-unconfig 3600
+ bfd address-family ipv4 multiplier 3
+ bfd address-family ipv4 destination 10.77.1.10
+ bfd address-family ipv4 fast-detect
+ bfd address-family ipv4 minimum-interval 15
+ mtu 9068
+ service-policy output CORE_EGRESS_SHAPE
+ ipv4 address 10.77.1.9 255.255.255.252
+ load-interval 30
+ dampening
+ logging events link-status
+!
+interface Bundle-Ether100
+ description To ISP Po2
+ mtu 9014
+ service-policy output EDGE-QOS-EGRESS
+ bundle minimum-active links 2
+ load-interval 30
+ dampening
+!
+interface Bundle-Ether100.305
+ description Internet vrf interface to REMOTE1 Po2.305
+ service-policy input EDGE-QOS-INGRESS
+ vrf Internet
+ ipv4 address 192.168.88.48 255.255.255.254
+ load-interval 30
+ encapsulation dot1q 305
+ logging events link-status
+!
+interface Bundle-Ether100.306
+ description Enterprise vrf interface to REMOTE2 Po2.306
+ service-policy input EDGE-QOS-INGRESS
+ vrf Enterprise
+ ipv4 address 192.168.88.56 255.255.255.254
+ load-interval 30
+ encapsulation dot1q 306
+ logging events link-status
+!
+interface Bundle-Ether100.308
+ description SERVER-NETWORK vrf interface to ROUTER11 Po2.308
+ service-policy input EDGE-QOS-INGRESS
+ vrf SERVER-NETWORK
+ ipv4 address 192.168.88.72 255.255.255.254
+ load-interval 30
+ encapsulation dot1q 308
+ logging events link-status
+!
+interface Bundle-Ether100.310
+ description INFRA-NET vrf interface to ROUTER4 Po2.310
+ service-policy input EDGE-QOS-INGRESS
+ vrf INFRA-NET
+ ipv4 address 192.168.88.96 255.255.255.254
+ load-interval 30
+ encapsulation dot1q 310
+ logging events link-status
+!
+interface Bundle-Ether100.311
+ description DMZ-NET vrf interface to ROUTER3 Po2.311
+ service-policy input EDGE-QOS-INGRESS
+ vrf DMZ-NET
+ ipv4 address 192.168.88.88 255.255.255.254
+ load-interval 30
+ encapsulation dot1q 311
+ logging events link-status
+!
+interface Loopback0
+ description default loopback
+ ipv4 address 10.77.0.5 255.255.255.255
+!
+interface Loopback100
+ description anycast loopback
+ ipv4 address 10.77.0.113 255.255.255.255
+!
+interface MgmtEth0/RP0/CPU0/0
+ description == Management Interface ==
+ vrf OOB-MGT
+ ipv4 address 192.168.1.161 255.255.255.192
+!
+interface MgmtEth0/RP1/CPU0/0
+ description == Management Interface ==
+ vrf OOB-MGT
+ ipv4 address 192.168.1.162 255.255.255.192
+!
+interface TenGigE0/0/0/16
+ description RTCSR2SYA001PR Te0/0/0/16   Transit DWDM LINKNAME
+ bundle id 22 mode active
+ cdp
+ carrier-delay up 2000 down 0
+ macsec psk-keychain comp-MACSec policy MACSEC
+ load-interval 30
+ dampening
+!
+interface TenGigE0/0/0/17
+ description AUSTRALIA Te0/0/0/17 - Transit DWDM 
+ bundle id 22 mode active
+ cdp
+ carrier-delay up 2000 down 0
+ macsec psk-keychain comp-MACSec policy MACSEC
+ load-interval 30
+ dampening
+!
+interface TenGigE0/0/0/18
+ description Link to EUROPE Te0/2/2
+ bundle id 100 mode active
+ carrier-delay up 2000 down 0
+ dampening
+!
+interface TenGigE0/0/0/19
+ description Link to NASROUTER Te0/2/3
+ bundle id 100 mode active
+ carrier-delay up 2000 down 0
+ dampening
+!
+interface TenGigE0/0/0/20
+ ipv6 enable
+!
+!
+interface TenGigE0/0/0/26
+ description Connected to SWITCH Te0/0/0/26
+ bundle id 23 mode active
+ cdp
+ carrier-delay up 2000 down 0
+ macsec psk-keychain corp-MACSec policy MACSEC
+ load-interval 30
+ dampening
+!
+interface TenGigE0/0/0/27
+ description Link to ROUTER2 Te0/2/2
+ bundle id 200 mode active
+ carrier-delay up 2000 down 0
+ dampening
+!
+interface TenGigE0/0/0/28
+ description Link to OTHER END Te0/2/3
+ bundle id 200 mode active
+ carrier-delay up 2000 down 0
+ dampening
+!
+interface TenGigE0/0/0/29
+ ipv6 enable
+!
+interface TenGigE0/0/0/30
+ ipv6 enable
+!
+interface TenGigE0/0/0/31
+ ipv6 enable
+!
+interface TenGigE0/0/0/32
+ ipv6 enable
+!
+interface TenGigE0/0/0/33
+ ipv6 enable
+!
+interface TenGigE0/0/0/34
+ ipv6 enable
+!
+interface TenGigE0/0/0/35
+ ipv6 enable
+!
+interface HundredGigE0/0/0/0
+ ipv6 enable
+!
+interface HundredGigE0/0/0/1
+ description Connected to SOME ROUTER Hu0/0/0/1
+ bundle id 1 mode active
+ cdp
+ carrier-delay up 2000 down 0
+ macsec psk-keychain corp-MACSec policy MACSEC
+ load-interval 30
+ dampening
+!
+interface HundredGigE0/0/0/2
+ ipv6 enable
+!
+interface HundredGigE0/0/0/3
+ ipv6 enable
+!
+interface HundredGigE0/0/0/4
+ bundle id 1 mode active
+ cdp
+ carrier-delay up 2000 down 0
+ macsec psk-keychain corp-MACSec policy MACSEC
+ load-interval 30
+ dampening
+!
+interface HundredGigE0/0/0/5
+ ipv6 enable
+!
+interface HundredGigE0/0/0/6
+ ipv6 enable
+!
+interface HundredGigE0/0/0/7
+ ipv6 enable
+!
+interface HundredGigE0/0/0/8
+ ipv6 enable
+!
+i
+!
+ssh client dscp 16
+ssh server dscp 16
+ssh server logging
+ssh timeout 90
+ssh server session-limit 20
+ssh server v2
+license smart flexible-consumption enable
+end
