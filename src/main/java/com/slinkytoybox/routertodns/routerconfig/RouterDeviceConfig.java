@@ -75,6 +75,8 @@ public class RouterDeviceConfig {
 
         log.trace("{} Entering method", logPrefix);
 
+        if(siteName.isEmpty()) {siteName = "site";}
+        
         String deviceConfigData = LoadDeviceConfig(filename);
 
         if (!isNull(deviceConfigData)) {

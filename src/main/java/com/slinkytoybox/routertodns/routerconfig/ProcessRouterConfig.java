@@ -19,46 +19,39 @@
  */
 package com.slinkytoybox.routertodns.routerconfig;
 
+import com.slinkytoybox.routertodns.config.ApplicationProperties;
 import static java.lang.System.exit;
 import static java.util.Objects.isNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
  *
  * @author James Cowan <mrjamescowan@gmail.com>
  */
-
 @Slf4j
 @Component
 public class ProcessRouterConfig {
 
     @Autowired
-    public ProcessRouterConfig( @Value("${config-file}") String configFilename,
-                                @Value("${site-name}") String siteName,
-                                @Value("${dns.subdomain}") String dnsSubDomain,
-                                @Value("${dns.domain}") String dnsDomain,
-                                @Value("${dns.arecordserver}") String aRecordDNSServer,
-                                @Value("${dns.zone.confidence.level}") Integer dnsConfidenceLevel ) {
+    ApplicationProperties appProp;
+
+    @EventListener({ApplicationReadyEvent.class})
+    public void ProcessRouterConfigPost() {
         RouterDeviceConfig routerConfig = null;
 
-
-        if (configFilename.isBlank()) {
+        if (appProp.getConfigFilename().isEmpty()) {
             log.error("Please specify config filename (--config-filename=<filename>");
             exit(0);
         } else {
-            if (!siteName.isBlank()) {
-                routerConfig = new RouterDeviceConfig(configFilename, siteName, dnsSubDomain, dnsDomain, dnsConfidenceLevel);
-
-            } else {
-                routerConfig = new RouterDeviceConfig(configFilename, "site", dnsSubDomain, dnsDomain, dnsConfidenceLevel);
-            }
+            routerConfig = new RouterDeviceConfig(appProp.getConfigFilename(), appProp.getSiteName(), appProp.getDnsSubDomain(), appProp.getDnsDomain(), appProp.getZoneConfidenceLevel());
         }
         if (!isNull(routerConfig)) {
             routerConfig.LogDeviceStats();
-            routerConfig.OutputNewARecords(aRecordDNSServer);
+            routerConfig.OutputNewARecords(appProp.getARecordDNSServer());
             routerConfig.OutputConfidentPTRRecords();
             routerConfig.OutputUncertainPTRRecords();
 
